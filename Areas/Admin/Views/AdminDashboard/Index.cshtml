@@ -1,0 +1,262 @@
+﻿@model IEnumerable<MyFitMeal.Models.UserProfile>
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<style>
+    :root {
+        --lime: #ccff00;
+        --dark-bg: #0f1113;
+        --card-bg-light: #ffffff;
+        --card-bg-dark: #1a1d20;
+        --text-muted: #6c757d;
+    }
+
+    /* Fast Rendering Engine */
+    .admin-matrix-container {
+        backface-visibility: hidden;
+        transform: translateZ(0);
+    }
+
+    /* Hybrid Glass Cards */
+    .admin-card {
+        background: var(--card-bg-light);
+        border: 1px solid rgba(0,0,0,0.05);
+        border-radius: 25px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        transition: 0.3s ease;
+    }
+
+    [data-bs-theme="dark"] .admin-card {
+        background: var(--card-bg-dark);
+        border-color: rgba(255,255,255,0.05);
+    }
+
+    /* Pro Table Styling */
+    .user-table {
+        border-collapse: separate;
+        border-spacing: 0 8px;
+        width: 100%;
+    }
+
+        .user-table thead th {
+            color: var(--text-muted);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 900;
+            padding: 15px 20px;
+            border: none;
+        }
+
+        .user-table tbody tr {
+            background: rgba(0,0,0,0.02);
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+    [data-bs-theme="dark"] .user-table tbody tr {
+        background: rgba(255,255,255,0.03);
+    }
+
+    .user-table td {
+        padding: 16px 20px;
+        vertical-align: middle;
+        border: none;
+        color: inherit;
+    }
+
+    /* High Contrast Text Fix */
+    .user-email-text {
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        color: #111;
+    }
+
+    [data-bs-theme="dark"] .user-email-text {
+        color: #f8f9fa;
+    }
+
+    /* Desktop Rounding & Hover */
+    @@media (min-width: 992px) {
+        .user-table td:first-child {
+            border-radius: 15px 0 0 15px;
+        }
+
+        .user-table td:last-child {
+            border-radius: 0 15px 15px 0;
+        }
+
+        .user-table tbody tr:hover {
+            transform: scale(1.005) translateX(5px);
+            background: rgba(204, 255, 0, 0.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+    }
+
+    /* Mobile Responsive Card-View */
+    @@media (max-width: 991px) {
+        .user-table thead {
+            display: none;
+        }
+
+        .user-table, .user-table tbody, .user-table tr, .user-table td {
+            display: block;
+            width: 100%;
+        }
+
+            .user-table tr {
+                margin-bottom: 15px;
+                border-radius: 20px;
+                padding: 15px;
+                border: 1px solid rgba(0,0,0,0.05);
+                background: var(--card-bg-light) !important;
+            }
+
+        [data-bs-theme="dark"] .user-table tr {
+            background: var(--card-bg-dark) !important;
+            border-color: rgba(255,255,255,0.05);
+        }
+
+        .user-table td {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.03);
+        }
+
+        [data-bs-theme="dark"] .user-table td {
+            border-bottom-color: rgba(255,255,255,0.05);
+        }
+
+        .user-table td:last-child {
+            border: none;
+        }
+
+        .user-table td::before {
+            content: attr(data-label);
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+        }
+    }
+
+    .btn-lime-action {
+        background: #000;
+        color: var(--lime);
+        border: 1px solid var(--lime);
+        font-weight: 900;
+        padding: 10px 20px;
+        font-size: 0.7rem;
+        border-radius: 12px;
+        transition: 0.3s;
+        text-transform: uppercase;
+    }
+
+        .btn-lime-action:hover {
+            background: var(--lime);
+            color: #000;
+            box-shadow: 0 0 20px rgba(204, 255, 0, 0.4);
+        }
+</style>
+
+<div class="container-fluid py-4 admin-matrix-container">
+    @* --- Header Section --- *@
+    <div class="row align-items-center mb-5 gy-4 animate__animated animate__fadeIn">
+        <div class="col-md-7">
+            <h1 class="fw-black display-5 mb-1 text-uppercase text-center text-md-start">Admin <span style="color:var(--lime)">Intel</span></h1>
+            <p class="text-muted small fw-bold text-uppercase letter-spacing-2 text-center text-md-start mb-0">Biological Node Matrix</p>
+        </div>
+        <div class="col-md-5">
+            <div class="admin-card p-3 d-flex align-items-center justify-content-center justify-content-md-start shadow-sm border-0">
+                <div class="bg-dark rounded-3 p-3 me-3 border border-secondary border-opacity-25 shadow-sm">
+                    <i class="bi bi-people-fill fs-4 text-lime" style="color:var(--lime)"></i>
+                </div>
+                <div>
+                    <div class="fw-black fs-3 lh-1">@Model.Count()</div>
+                    <div class="x-small fw-bold opacity-50 text-uppercase">Active Connections</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* --- Master Search & Filters (Optional visual block) --- *@
+    <div class="admin-card p-4 mb-4 animate__animated animate__fadeInUp">
+        <div class="table-responsive">
+            <table class="table user-table mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">User Cluster</th>
+                        <th>Vitals</th>
+                        <th>Target strategy</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Command</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var profile in Model)
+                    {
+                        <tr>
+                            <td data-label="Cluster" class="ps-4">
+                                <div class="d-flex align-items-center text-end text-md-start w-100">
+                                    <div class="bg-dark rounded-3 me-3 d-none d-md-flex align-items-center justify-content-center border border-secondary border-opacity-25 shadow-sm" style="width:45px; height:45px;">
+                                        <i class="bi bi-fingerprint text-lime"></i>
+                                    </div>
+                                    <div class="text-end text-md-start w-100">
+                                        <div class="user-email-text">@profile.User?.Email</div>
+                                        <div class="font-monospace text-muted" style="font-size: 0.6rem;">ID: @profile.UserId.Substring(0, 8)</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td data-label="Metrics">
+                                <div class="text-end text-md-start">
+                                    <span class="badge bg-dark text-white border border-secondary border-opacity-25 px-2 py-1 mb-1" style="font-size: 0.6rem;">@profile.Gender.ToUpper()</span>
+                                    <div class="x-small fw-black text-muted">@profile.Age YRS | @profile.Height CM</div>
+                                </div>
+                            </td>
+                            <td data-label="Strategy">
+                                <div class="text-end text-md-start">
+                                    <div class="small fw-black text-uppercase" style="color:var(--lime);">@profile.Goal</div>
+                                    <div class="x-small fw-bold text-muted opacity-50">@profile.LifestyleType</div>
+                                </div>
+                            </td>
+                            <td data-label="Status">
+                                <div class="text-end text-md-start">
+                                    @if (profile.IsProfileComplete)
+                                    {
+                                        <span class="d-flex align-items-center justify-content-end justify-content-md-start text-success fw-black" style="font-size: 0.65rem;">
+                                            <span class="spinner-grow spinner-grow-sm me-2" style="width: 8px; height: 8px;"></span> ONLINE
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted fw-bold" style="font-size: 0.65rem;">STANDBY</span>
+                                    }
+                                </div>
+                            </td>
+                            <td data-label="Action" class="text-end pe-4">
+                                <div class="d-flex justify-content-end gap-2 align-items-center">
+                                    <a asp-area="Admin" asp-controller="AdminDashboard" asp-action="UserDiet" asp-route-userId="@profile.UserId"
+                                       class="btn btn-lime-action">
+                                        <i class="bi bi-activity me-1"></i> Protocol
+                                    </a>
+
+                                    <form asp-area="Admin" asp-controller="AdminDashboard" asp-action="ResetDiet" method="post"
+                                          onsubmit="return confirm('DANGER: Purge AI data for this node?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="userId" value="@profile.UserId" />
+                                        <button type="submit" class="btn btn-link text-danger p-0 ms-2" title="Wipe Sync">
+                                            <i class="bi bi-arrow-counterclockwise fs-5"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

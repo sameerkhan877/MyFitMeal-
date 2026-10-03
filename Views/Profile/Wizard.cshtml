@@ -1,0 +1,313 @@
+﻿@model MyFitMeal.Models.UserProfile
+
+<style>
+    :root {
+        --lime: #ccff00;
+        --dark-surface: #0c0e10;
+        --glass-stroke: rgba(255, 255, 255, 0.1);
+    }
+
+    body {
+        background: radial-gradient(circle at 70% 20%, #1a1d20, var(--dark-surface));
+        min-height: 100vh;
+        color: white;
+    }
+
+    /* High-Performance Wizard Card */
+    .wizard-glass-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-stroke);
+        border-radius: 40px;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        backface-visibility: hidden;
+        transform: translateZ(0);
+    }
+
+    .glass-input-field {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid var(--glass-stroke) !important;
+        border-radius: 18px !important;
+        padding: 14px 20px !important;
+        color: white !important;
+        transition: 0.3s;
+    }
+
+        .glass-input-field:focus {
+            border-color: var(--lime) !important;
+            box-shadow: 0 0 20px rgba(204, 255, 0, 0.2) !important;
+        }
+
+    /* Option Cards for Radio Buttons */
+    .btn-check:checked + .option-card {
+        border-color: var(--lime);
+        background: rgba(204, 255, 0, 0.08);
+        color: var(--lime);
+        transform: scale(1.02);
+    }
+
+    .option-card {
+        border: 1px solid var(--glass-stroke);
+        background: rgba(255, 255, 255, 0.02);
+        color: #aaa;
+        padding: 22px;
+        border-radius: 22px;
+        cursor: pointer;
+        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .step-indicator-bar {
+        height: 6px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .step-progress {
+        height: 100%;
+        background: linear-gradient(90deg, var(--lime), #b8e600);
+        box-shadow: 0 0 20px rgba(204, 255, 0, 0.5);
+    }
+
+    .icon-box {
+        width: 80px;
+        height: 80px;
+        background: rgba(204, 255, 0, 0.08);
+        color: var(--lime);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        border: 1.5px solid rgba(204, 255, 0, 0.15);
+    }
+
+    .btn-lime-nav {
+        background: var(--lime);
+        color: black;
+        font-weight: 900;
+        border-radius: 50px;
+        padding: 14px 40px;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        border: none;
+        transition: 0.3s;
+    }
+
+        .btn-lime-nav:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(204, 255, 0, 0.4);
+        }
+
+    @@media (max-width: 768px) {
+        .wizard-glass-card {
+            border-radius: 30px;
+            padding: 30px 20px !important;
+        }
+
+        .icon-box {
+            width: 65px;
+            height: 65px;
+        }
+
+        .btn-lime-nav {
+            width: 100%;
+        }
+    }
+</style>
+
+<div class="container py-4">
+    <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+        <div class="col-lg-8 col-xl-7">
+            <div class="wizard-glass-card p-4 p-md-5 animate__animated animate__zoomIn">
+
+                @* --- Progress Tracking --- *@
+                <div class="mb-5">
+                    <div class="d-flex justify-content-between align-items-end mb-3">
+                        <div>
+                            <h2 class="fw-black mb-0 text-uppercase h4">Bio-Sync <span style="color:var(--lime)">Wizard</span></h2>
+                            <p class="text-muted small mb-0 fw-bold">Initializing Biological Signature</p>
+                        </div>
+                        <span class="badge bg-dark text-lime rounded-pill px-3 py-2 border border-secondary border-opacity-25" style="color:var(--lime); font-size: 0.7rem;">
+                            PHASE <span id="currentStepNumber">1</span> OF 6
+                        </span>
+                    </div>
+                    <div class="step-indicator-bar">
+                        <div class="step-progress" id="progressFill" style="width: 16.66%; transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                    </div>
+                </div>
+
+                <form asp-action="CompleteProfile" method="post" id="wizardForm">
+                    @Html.AntiForgeryToken()
+
+                    @* --- Step 1: Physical Metrics --- *@
+                    <div class="step-content animate__animated animate__fadeIn" id="step1">
+                        <div class="icon-box"><i class="bi bi-person-bounding-box fs-2"></i></div>
+                        <h5 class="fw-black text-center mb-4 text-uppercase letter-spacing-2">Physical Context</h5>
+                        <div class="mb-4">
+                            <label class="small fw-bold text-muted text-uppercase mb-2">Gender Identity</label>
+                            <select asp-for="Gender" class="form-select glass-input-field">
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="small fw-bold text-muted text-uppercase mb-2">Age</label>
+                                <input asp-for="Age" type="number" class="form-control glass-input-field" placeholder="25" required min="10" max="100" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold text-muted text-uppercase mb-2">Height (CM)</label>
+                                <input asp-for="Height" type="number" class="form-control glass-input-field" placeholder="175" required min="100" max="250" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="small fw-bold text-muted text-uppercase mb-2">Weight (KG)</label>
+                                <input asp-for="Weight" type="number" step="0.1" class="form-control glass-input-field" placeholder="70" required min="30" max="300" />
+                            </div>
+                        </div>
+                    </div>
+
+                    @* --- Step 2: Primary Objective --- *@
+                    <div class="step-content d-none animate__animated animate__fadeIn" id="step2">
+                        <div class="icon-box"><i class="bi bi-bullseye fs-2"></i></div>
+                        <h5 class="fw-black text-center mb-4 text-uppercase">Mission Protocol</h5>
+                        <div class="d-grid gap-3">
+                            <input type="radio" class="btn-check" asp-for="Goal" value="Fat Control" id="goal1" checked>
+                            <label class="option-card d-flex align-items-center" for="goal1">
+                                <div class="p-3 bg-dark rounded-3 me-3 text-lime"><i class="bi bi-droplet-half"></i></div>
+                                <div><div class="fw-black text-white small">FAT CONTROL</div><small class="opacity-50">Optimize for caloric deficit & fat oxidation</small></div>
+                            </label>
+
+                            <input type="radio" class="btn-check" asp-for="Goal" value="Muscle Support" id="goal2">
+                            <label class="option-card d-flex align-items-center" for="goal2">
+                                <div class="p-3 bg-dark rounded-3 me-3 text-lime"><i class="bi bi-fire"></i></div>
+                                <div><div class="fw-black text-white small">MUSCLE SUPPORT</div><small class="opacity-50">Anabolic fuel for hypertrophy & strength</small></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    @* --- Step 3: Metabolism --- *@
+                    <div class="step-content d-none animate__animated animate__fadeIn" id="step3">
+                        <div class="icon-box"><i class="bi bi-lightning-charge fs-2"></i></div>
+                        <h5 class="fw-black text-center mb-4 text-uppercase">Activity Threshold</h5>
+                        <div class="p-3 rounded-4 bg-dark bg-opacity-25 border border-secondary border-opacity-10">
+                            <label class="small fw-bold text-muted text-uppercase mb-3">TDEE Multiplier</label>
+                            <select asp-for="ActivityLevel" class="form-select glass-input-field">
+                                <option value="Sedentary">Sedentary (Minimum Movement)</option>
+                                <option value="Moderate">Moderate (Active Lifestyle)</option>
+                                <option value="Active">Athlete (High Performance)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    @* --- Step 4: Environment --- *@
+                    <div class="step-content d-none animate__animated animate__fadeIn" id="step4">
+                        <div class="icon-box"><i class="bi bi-layers fs-2"></i></div>
+                        <h5 class="fw-black text-center mb-4 text-uppercase">Life Context</h5>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" asp-for="LifestyleType" value="College" id="ls1" checked>
+                                <label class="option-card text-center h-100" for="ls1">
+                                    <i class="bi bi-mortarboard fs-3 mb-2 d-block"></i>
+                                    <span class="fw-bold small">COLLEGE</span>
+                                </label>
+                            </div>
+                            <div class="col-6">
+                                <input type="radio" class="btn-check" asp-for="LifestyleType" value="Office" id="ls2">
+                                <label class="option-card text-center h-100" for="ls2">
+                                    <i class="bi bi-briefcase fs-3 mb-2 d-block"></i>
+                                    <span class="fw-bold small">OFFICE</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* --- Step 5: Nutritional Tuning --- *@
+                    <div class="step-content d-none animate__animated animate__fadeIn" id="step5">
+                        <div class="icon-box"><i class="bi bi-filter-circle fs-2"></i></div>
+                        <h5 class="fw-black text-center mb-4 text-uppercase">Data Tuning</h5>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="small fw-bold text-muted text-uppercase mb-2">Food Source</label>
+                                <select asp-for="FoodPreference" class="form-select glass-input-field">
+                                    <option value="Veg">Vegetarian</option>
+                                    <option value="Non-Veg">Non-Veg</option>
+                                    <option value="Eggetarian">Eggetarian</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="small fw-bold text-muted text-uppercase mb-2">Budget Tier</label>
+                                <select asp-for="Budget" class="form-select glass-input-field">
+                                    <option value="Budget">Student / Eco</option>
+                                    <option value="Standard">Standard</option>
+                                    <option value="Premium">Elite / Performance</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* --- Step 6: Final Execution --- *@
+                    <div class="step-content d-none animate__animated animate__fadeIn" id="step6">
+                        <div class="text-center">
+                            <div class="icon-box border-success bg-success bg-opacity-10 text-success"><i class="bi bi-check-all fs-1"></i></div>
+                            <h3 class="fw-black mb-2 text-uppercase">Data Synchronized</h3>
+                            <p class="text-muted mb-5 small">Gemini AI is ready to compute your personalized 7-day nutritional protocol.</p>
+                            <button type="submit" class="btn btn-lime-nav w-100 py-3 shadow-lg">
+                                <i class="bi bi-cpu-fill me-2"></i> Deploy Protocol
+                            </button>
+                        </div>
+                    </div>
+
+                    @* --- Command Navigation --- *@
+                    <div class="mt-5 d-flex justify-content-between align-items-center pt-4 border-top border-secondary border-opacity-10">
+                        <button type="button" class="btn btn-link text-white text-decoration-none fw-bold opacity-50 d-none" id="prevBtn" onclick="changeStep(-1)">
+                            <i class="bi bi-arrow-left me-2"></i> BACK
+                        </button>
+                        <button type="button" class="btn btn-lime-nav px-5 ms-auto fw-black" id="nextBtn" onclick="changeStep(1)">
+                            NEXT <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let currentStep = 1;
+        const totalSteps = 6;
+
+        function changeStep(n) {
+            if (n > 0 && !validateStep(currentStep)) return;
+
+            document.getElementById(`step${currentStep}`).classList.add('d-none');
+            currentStep += n;
+            document.getElementById(`step${currentStep}`).classList.remove('d-none');
+
+            // UI Refresh logic
+            document.getElementById('prevBtn').classList.toggle('d-none', currentStep === 1);
+            document.getElementById('nextBtn').classList.toggle('d-none', currentStep === totalSteps);
+            document.getElementById('currentStepNumber').innerText = currentStep;
+
+            const progressPercent = (currentStep / totalSteps) * 100;
+            document.getElementById('progressFill').style.width = `${progressPercent}%`;
+
+            // Scroll to top of wizard on mobile
+            if(window.innerWidth < 768) window.scrollTo(0, 0);
+        }
+
+        function validateStep(step) {
+            const inputs = document.getElementById(`step${step}`).querySelectorAll('input, select');
+            let valid = true;
+            inputs.forEach(input => {
+                if (!input.checkValidity()) {
+                    input.reportValidity();
+                    valid = false;
+                }
+            });
+            return valid;
+        }
+    </script>
+}

@@ -1,0 +1,181 @@
+﻿@model MyFitMeal.Models.DailyDiet
+
+<style>
+    :root {
+        --lime: #ccff00;
+        --dark-surface: #1a1d20;
+    }
+
+    /* Optimization: Reducing blur radius for smoother mobile performance */
+    .glass-container {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border: 1px solid rgba(0,0,0,0.05);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.06);
+        border-radius: 35px;
+    }
+
+    [data-bs-theme="dark"] .glass-container {
+        background: rgba(26, 29, 32, 0.9);
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    /* High-Performance Inputs */
+    .form-glass-input {
+        background: #f8f9fa;
+        border: 1px solid #eee;
+        border-radius: 20px;
+        color: inherit;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+        font-weight: 500;
+        resize: none; /* Layout shift rokne ke liye */
+    }
+
+    [data-bs-theme="dark"] .form-glass-input {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+
+    .form-glass-input:focus {
+        background: white;
+        border-color: var(--lime);
+        box-shadow: 0 10px 25px rgba(204, 255, 0, 0.1);
+        transform: translateY(-2px);
+        outline: none;
+    }
+
+    /* Icon Badges */
+    .icon-badge {
+        width: 32px;
+        height: 32px;
+        background: #111;
+        color: var(--lime);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+    }
+
+    /* Responsive Buttons */
+    .btn-sync-action {
+        background: #000;
+        color: var(--lime);
+        border-radius: 18px;
+        padding: 14px 30px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border: 1.5px solid var(--lime);
+        transition: 0.3s;
+    }
+
+        .btn-sync-action:hover {
+            background: var(--lime);
+            color: #000;
+            box-shadow: 0 12px 25px rgba(204, 255, 0, 0.3);
+        }
+
+    /* Mobile Adjustments */
+    @@media (max-width: 768px) {
+        .glass-container {
+            border-radius: 25px;
+            padding: 15px !important;
+        }
+
+        .display-6 {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+
+<div class="container py-4">
+    @* --- Header & Back Navigation --- *@
+    <div class="d-flex align-items-center mb-4 animate__animated animate__fadeIn">
+        <a asp-area="Admin" asp-controller="AdminDashboard" asp-action="UserDiet" asp-route-userId="@Model.WeeklyPlan?.UserId"
+           class="btn btn-dark rounded-circle me-3 d-flex align-items-center justify-content-center shadow" style="width:48px; height:48px;">
+            <i class="bi bi-arrow-left fs-5"></i>
+        </a>
+        <div>
+            <h1 class="h3 fw-black mb-0 text-uppercase">System <span style="color:var(--lime)">Override</span></h1>
+            <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-2 py-1 rounded-pill x-small fw-bold">
+                <i class="bi bi-shield-lock-fill me-1"></i> ADMIN SECURE NODE
+            </span>
+        </div>
+    </div>
+
+    @* --- Modification Engine --- *@
+    <div class="card glass-container border-0 animate__animated animate__fadeInUp shadow-lg">
+        <div class="card-body p-3 p-md-5">
+            <form asp-area="Admin" asp-controller="AdminDashboard" asp-action="UpdateUserDiet" method="post" id="overrideForm">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="WeeklyPlanId" />
+
+                <div class="row g-3 g-md-4">
+                    @* Breakfast *@
+                    <div class="col-md-6">
+                        <label class="input-label mb-2 fw-black small text-uppercase opacity-75 d-flex align-items-center">
+                            <div class="icon-badge"><i class="bi bi-sun-fill"></i></div> Morning Intake
+                        </label>
+                        <textarea asp-for="Breakfast" class="form-control form-glass-input p-3" rows="3" placeholder="Macros injection..."></textarea>
+                    </div>
+
+                    @* Lunch *@
+                    <div class="col-md-6">
+                        <label class="input-label mb-2 fw-black small text-uppercase opacity-75 d-flex align-items-center">
+                            <div class="icon-badge"><i class="bi bi-brightness-high-fill"></i></div> Midday Fuel
+                        </label>
+                        <textarea asp-for="Lunch" class="form-control form-glass-input p-3" rows="3" placeholder="Macros injection..."></textarea>
+                    </div>
+
+                    @* Snack *@
+                    <div class="col-md-6">
+                        <label class="input-label mb-2 fw-black small text-uppercase opacity-75 d-flex align-items-center">
+                            <div class="icon-badge"><i class="bi bi-lightning-charge-fill"></i></div> Performance Snack
+                        </label>
+                        <textarea asp-for="Snack" class="form-control form-glass-input p-3" rows="3" placeholder="Snack sync..."></textarea>
+                    </div>
+
+                    @* Dinner *@
+                    <div class="col-md-6">
+                        <label class="input-label mb-2 fw-black small text-uppercase opacity-75 d-flex align-items-center">
+                            <div class="icon-badge"><i class="bi bi-moon-stars-fill"></i></div> Night Recovery
+                        </label>
+                        <textarea asp-for="Dinner" class="form-control form-glass-input p-3" rows="3" placeholder="Recovery macros..."></textarea>
+                    </div>
+
+                    @* Advisory Section *@
+                    <div class="col-12 mt-3">
+                        <div class="p-3 rounded-4" style="background: rgba(204, 255, 0, 0.03); border: 1px dashed rgba(204, 255, 0, 0.2);">
+                            <label class="input-label mb-2 fw-black small text-uppercase d-flex align-items-center" style="color:var(--lime)">
+                                <div class="icon-badge" style="background:var(--lime); color:black;"><i class="bi bi-robot"></i></div> AI Expert Advisory
+                            </label>
+                            <textarea asp-for="AdminNote" class="form-control form-glass-input p-3" rows="2"
+                                      placeholder="Note for the user dashboard..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                @* --- Actions Matrix --- *@
+                <div class="mt-4 pt-4 border-top border-secondary border-opacity-10 d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
+                    <div class="d-flex align-items-center order-2 order-md-1">
+                        <div class="spinner-border spinner-border-sm text-lime me-2" role="status" style="width: 12px; height: 12px; color:var(--lime)"></div>
+                        <span class="x-small text-muted fw-bold text-uppercase">Day @Model.DayNumber Data Stream Active</span>
+                    </div>
+
+                    <div class="d-flex gap-2 w-100 w-md-auto order-1 order-md-2">
+                        <a asp-area="Admin" asp-controller="AdminDashboard" asp-action="UserDiet" asp-route-userId="@Model.WeeklyPlan?.UserId"
+                           class="btn btn-outline-secondary border-0 rounded-pill px-4 fw-bold flex-grow-1 small">Cancel</a>
+
+                        <button type="submit" class="btn btn-sync-action flex-grow-1 shadow-sm">
+                            <i class="bi bi-cloud-check-fill me-2"></i> Sync Plan
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,212 @@
+﻿@model MyFitMeal.Models.WeeklyPlan
+
+<style>
+    :root {
+        --app-bg: #f3f6f3;
+        --lime: #ccff00;
+        --dark: #111;
+        --glass: rgba(255, 255, 255, 0.85);
+    }
+
+    [data-bs-theme="dark"] {
+        --app-bg: #0f1113;
+        --glass: rgba(26, 29, 32, 0.85);
+    }
+
+    body {
+        background-color: var(--app-bg);
+        transition: 0.4s ease;
+    }
+
+    .dashboard-container {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* MODAL FIX */
+    #weightModal {
+        z-index: 99999 !important;
+        background: rgba(0,0,0,0.7) !important;
+        backdrop-filter: blur(5px);
+    }
+
+    .modal-backdrop {
+        display: none !important;
+    }
+
+    .modal-content-fix {
+        background: var(--glass) !important;
+        backdrop-filter: blur(25px);
+        border-radius: 35px !important;
+        border: 2px solid var(--lime) !important;
+    }
+
+    /* UI & DAY PILLS */
+    .glass-tile {
+        background: var(--glass);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 30px;
+        padding: 22px;
+        margin-bottom: 20px;
+    }
+
+    .calendar-container {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding: 10px 0 25px;
+        scrollbar-width: none;
+    }
+
+    .day-pill {
+        min-width: 65px;
+        height: 90px;
+        background: var(--glass);
+        border-radius: 22px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        transition: 0.3s;
+        text-decoration: none;
+        color: inherit;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+        /* Active Day Highlight */
+        .day-pill.active {
+            background: var(--dark);
+            color: var(--lime);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 20px rgba(0,0,0,0.2);
+            border: 2px solid var(--lime);
+        }
+
+    .meal-item {
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        padding: 12px 0;
+    }
+
+        .meal-item:last-child {
+            border-bottom: none;
+        }
+</style>
+
+<div class="container-fluid py-2 dashboard-container">
+    @* --- Header --- *@
+    <div class="mb-4 d-flex justify-content-between align-items-center animate__animated animate__fadeIn">
+        <div>
+            <p class="text-muted small mb-0 fw-black" id="greetingText">INITIALIZING...</p>
+            <h2 class="fw-black h3">@ViewBag.UserDisplayName</h2>
+        </div>
+        <button class="btn btn-dark rounded-pill px-4 fw-bold shadow-lg"
+                data-bs-toggle="modal" data-bs-target="#weightModal" data-bs-backdrop="false">
+            <i class="bi bi-plus-lg me-1"></i> Log Mass
+        </button>
+    </div>
+
+    @* --- Progress Card --- *@
+    <a asp-action="Statistics" class="text-decoration-none">
+        <div class="glass-tile mb-4 bg-dark text-white border-0 shadow-lg" style="background: linear-gradient(135deg, #111 0%, #222 100%) !important;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="badge rounded-pill mb-2" style="background: var(--lime); color: #000;">TARGET: @ViewBag.TargetCals KCAL</span>
+                    <h4 class="fw-black mb-1">Body Evolution</h4>
+                    <p class="small opacity-50 mb-0">Tap for AI Statistics Hub</p>
+                </div>
+                <div class="fw-black fs-2" style="color: var(--lime);">85%</div>
+            </div>
+        </div>
+    </a>
+
+    @* --- Day Sync Slider (Yahan Active Day highlight hoga) --- *@
+    <div class="calendar-container">
+        @foreach (var day in Model.Days.OrderBy(d => d.DayNumber))
+        {
+            var isUserCurrentDay = (day.DayNumber == (ViewBag.ActiveDay ?? 1));
+            <a asp-action="Details" asp-route-id="@day.Id" class="day-pill @(isUserCurrentDay ? "active" : "")">
+                <small class="x-small fw-bold opacity-50">DAY</small>
+                <span class="fs-4 fw-black">@day.DayNumber</span>
+                @if (isUserCurrentDay)
+                {
+                    <div style="width: 4px; height: 4px; background: var(--lime); border-radius: 50%; margin-top: 4px;"></div>
+                }
+            </a>
+        }
+    </div>
+
+    @* --- Active Day Protocol Matrix --- *@
+    <h6 class="fw-black mb-3 text-uppercase small opacity-75 px-1">Active: Day @(ViewBag.ActiveDay ?? 1) Protocol</h6>
+    @{
+        var today = Model.Days.FirstOrDefault(d => d.DayNumber == (ViewBag.ActiveDay ?? 1)) ?? Model.Days.FirstOrDefault();
+    }
+
+    <div class="glass-tile animate__animated animate__fadeInUp">
+        <div class="meal-item d-flex align-items-center gap-3">
+            <div class="p-3 bg-warning bg-opacity-10 text-warning rounded-4"><i class="bi bi-egg-fried"></i></div>
+            <div class="overflow-hidden">
+                <div class="fw-black small text-uppercase">Breakfast</div>
+                <div class="text-muted small text-truncate">@today?.Breakfast</div>
+            </div>
+        </div>
+        <div class="meal-item d-flex align-items-center gap-3">
+            <div class="p-3 bg-info bg-opacity-10 text-info rounded-4"><i class="bi bi-sun"></i></div>
+            <div class="overflow-hidden">
+                <div class="fw-black small text-uppercase">Lunch</div>
+                <div class="text-muted small text-truncate">@today?.Lunch</div>
+            </div>
+        </div>
+        <div class="meal-item d-flex align-items-center gap-3">
+            <div class="p-3 bg-success bg-opacity-10 text-success rounded-4"><i class="bi bi-moon-stars"></i></div>
+            <div class="overflow-hidden">
+                <div class="fw-black small text-uppercase">Dinner</div>
+                <div class="text-muted small text-truncate">@today?.Dinner</div>
+            </div>
+        </div>
+        <div class="mt-3">
+            <a asp-action="Details" asp-route-id="@today?.Id" class="btn btn-dark w-100 rounded-pill fw-bold py-2" style="color: var(--lime)">VIEW FULL DETAILS</a>
+        </div>
+    </div>
+</div>
+
+@* --- MODAL: Weight Sync --- *@
+<div class="modal fade" id="weightModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered px-3">
+        <div class="modal-content modal-content-fix p-4 border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="fw-black mb-0 text-uppercase h6">Log Transformation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="UpdateWeight" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-body text-center py-4">
+                    <label class="x-small fw-bold opacity-50 mb-3 text-uppercase">Input Body Mass (kg)</label>
+                    <input type="number" step="0.1" name="weight" value="@ViewBag.CurrentWeight"
+                           class="form-control fs-1 fw-black text-center border-0 bg-dark bg-opacity-10 rounded-4 py-3"
+                           required autofocus style="color:var(--lime) !important;">
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="submit" class="btn btn-dark w-100 rounded-pill py-3 fw-black shadow-lg" style="color:var(--lime); border: 1px solid var(--lime)">
+                        SYNC DATA NODE
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const hour = new Date().getHours();
+            const greet = document.getElementById('greetingText');
+            if(greet) {
+                if(hour < 12) greet.innerText = "GOOD MORNING UNIT";
+                else if(hour < 17) greet.innerText = "MISSION: AFTERNOON";
+                else greet.innerText = "GOOD EVENING NODE";
+            }
+        });
+    </script>
+}

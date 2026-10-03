@@ -1,0 +1,304 @@
+﻿<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MyFitMeal</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
+    <style>
+        :root {
+            --lime: #ccff00;
+            --sidebar-width: 85px;
+            --header-height: 75px;
+            --trans: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background-color: #f3f6f3;
+            color: #111;
+            transition: var(--trans);
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        [data-bs-theme="dark"] body {
+            background-color: #0c0e10;
+            color: #f8f9fa;
+        }
+
+        /* --- Sidebar Navigation --- */
+        .side-nav {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: #111;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 25px;
+            z-index: 1050 !important;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+        }
+
+        .nav-link-custom {
+            width: 54px;
+            height: 54px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            color: #666;
+            text-decoration: none;
+            transition: var(--trans);
+        }
+
+            .nav-link-custom:hover {
+                color: var(--lime);
+                background: rgba(255,255,255,0.08);
+            }
+
+            .nav-link-custom.active {
+                background: var(--lime);
+                color: #000;
+                box-shadow: 0 12px 24px rgba(204, 255, 0, 0.3);
+            }
+
+        /* --- Header --- */
+        .top-header {
+            margin-left: var(--sidebar-width);
+            height: var(--header-height);
+            background: rgba(243, 246, 243, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            position: sticky;
+            top: 0;
+            z-index: 1040;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        [data-bs-theme="dark"] .top-header {
+            background: rgba(12, 14, 16, 0.85);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        /* --- Critical Weight Modal Fix: Resetting Parent Context --- */
+        .main-content-wrapper {
+            margin-left: var(--sidebar-width);
+            padding: 40px;
+            flex: 1;
+            position: relative;
+            z-index: 1; /* Low z-index so modals can easily float over it */
+        }
+
+        .username-tag {
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            background: rgba(0,0,0,0.05);
+            padding: 8px 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* --- Minimal Footer By Sameer Zaheer Khan --- */
+        .minimal-footer {
+            background: #111;
+            color: #fff;
+            padding: 40px 0;
+            margin-left: var(--sidebar-width);
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .footer-social-link {
+            color: #666;
+            font-size: 1.5rem;
+            transition: 0.3s;
+            margin: 0 12px;
+        }
+
+            .footer-social-link:hover {
+                color: var(--lime);
+                transform: scale(1.1);
+            }
+
+        .footer-name {
+            font-weight: 950;
+            text-transform: uppercase;
+            letter-spacing: 2.5px;
+            color: var(--lime);
+            font-size: 0.75rem;
+        }
+
+        /* --- Responsive Magic --- */
+        @@media (max-width: 768px) {
+            :root {
+                --sidebar-width: 0px;
+                --header-height: 65px;
+            }
+
+            .side-nav {
+                width: 100%;
+                height: 70px;
+                flex-direction: row;
+                bottom: 0;
+                top: auto;
+                padding: 0 10px;
+                justify-content: space-around;
+                border-radius: 30px 30px 0 0;
+            }
+
+            .top-header {
+                margin-left: 0;
+                padding: 0 15px;
+            }
+
+            .main-content-wrapper {
+                margin-left: 0;
+                padding: 20px;
+                padding-bottom: 100px;
+            }
+
+            .minimal-footer {
+                margin-left: 0;
+                margin-bottom: 70px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    @* --- Sidebar (Global) --- *@
+    <nav class="side-nav">
+        <a asp-area="" asp-controller="Home" asp-action="Index" class="nav-brand-icon mb-5 d-none d-md-block">
+            <i class="bi bi-nut-fill fs-2" style="color: var(--lime);"></i>
+        </a>
+        <a asp-area="" asp-controller="Home" asp-action="Index" class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")" title="Home">
+            <i class="bi bi-house-door-fill fs-5"></i>
+        </a>
+        <a asp-area="" asp-controller="Dashboard" asp-action="Index" class="nav-link-custom @(ViewContext.RouteData.Values["Controller"]?.ToString() == "Dashboard" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")" title="Dashboard">
+            <i class="bi bi-grid-fill fs-5"></i>
+        </a>
+        <a asp-area="" asp-controller="Dashboard" asp-action="Favorites" class="nav-link-custom @(ViewContext.RouteData.Values["Action"]?.ToString() == "Favorites" ? "active" : "")" title="Favorites">
+            <i class="bi bi-heart-fill fs-5"></i>
+        </a>
+
+        @if (User.Identity.IsAuthenticated && (User.IsInRole("Admin") || User.Identity.Name == "afzalkhan52404@gmail.com"))
+        {
+            <div class="my-2 d-none d-md-block" style="width: 30px; height: 1px; background: rgba(255,255,255,0.1);"></div>
+            <a asp-area="Admin" asp-controller="AdminDashboard" asp-action="Index" class="nav-link-custom @(ViewContext.RouteData.Values["Area"]?.ToString() == "Admin" ? "active" : "")" title="Admin Panel">
+                <i class="bi bi-shield-lock-fill fs-5"></i>
+            </a>
+        }
+
+        <div class="mt-auto mb-4 d-none d-md-block">
+            <button class="nav-link-custom border-0 bg-transparent" id="themeToggle" title="Toggle Theme">
+                <i class="bi bi-moon-stars-fill fs-5" id="themeIcon"></i>
+            </button>
+        </div>
+    </nav>
+
+    @* --- Top Global Header --- *@
+    <header class="top-header">
+        <div class="container-fluid h-100 d-flex justify-content-between align-items-center">
+            <h4 class="fw-black mb-0" style="letter-spacing: -1.5px;">MYFIT<span style="color:var(--lime)">MEAL</span></h4>
+
+            <div class="d-flex align-items-center gap-2">
+                <div class="d-none d-md-flex align-items-center gap-3">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        var email = User.Identity.Name;
+                        var username = email.Split('@')[0];
+                        var uniqueSuffix = Math.Abs(email.GetHashCode() % 1000).ToString("D3");
+                        <div class="username-tag">
+                            <i class="bi bi-person-fill opacity-50"></i>
+                            <span>@username<span style="color:var(--lime)">#@uniqueSuffix</span></span>
+                        </div>
+                    }
+                    <partial name="_LoginPartial" />
+                </div>
+                <button class="btn d-md-none border-0 p-1" type="button" data-bs-toggle="collapse" data-bs-target="#mobileMenu">
+                    <i class="bi bi-list fs-2" id="hamburgerIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="collapse d-md-none w-100 position-absolute start-0 shadow-lg" id="mobileMenu" style="top: var(--header-height); background: #111; z-index: 2000;">
+            <div class="p-4 text-center">
+                @if (User.Identity.IsAuthenticated)
+                {
+                    var email = User.Identity.Name;
+                    var username = email.Split('@')[0];
+                    var uniqueSuffix = Math.Abs(email.GetHashCode() % 1000).ToString("D3");
+                    <div class="username-tag justify-content-center mx-auto mb-4" style="width:fit-content; background: rgba(255,255,255,0.05); color: #fff;">
+                        <span>@username<span style="color:var(--lime)">#@uniqueSuffix</span></span>
+                    </div>
+                }
+                <div class="mobile-login-links text-white">
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </div>
+    </header>
+
+    @* --- Page Content Wrapper --- *@
+    <div class="main-content-wrapper">
+        <main role="main" class="animate__animated animate__fadeIn">
+            @RenderBody()
+        </main>
+    </div>
+
+    @* --- Sameer's Minimal Footer --- *@
+    <footer class="minimal-footer">
+        <div class="container text-center">
+            <div class="mb-4">
+                <a href="https://github.com/sameerkhan877" target="_blank" class="footer-social-link"><i class="bi bi-github"></i></a>
+                <a href="https://www.instagram.com/khansameer_019?igsh=eWlqaWN2ZXpwMjl0" target="_blank" class="footer-social-link"><i class="bi bi-instagram"></i></a>
+            </div>
+            <p class="small opacity-50 mb-1">&copy; 2026 MyFitMeal Protocol</p>
+            <p class="footer-name">SAMEER ZAHEER KHAN</p>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const html = document.documentElement;
+
+        const updateTheme = (theme) => {
+            html.setAttribute('data-bs-theme', theme);
+            if(themeIcon) themeIcon.className = theme === 'dark' ? 'bi bi-sun-fill fs-5' : 'bi bi-moon-stars-fill fs-5';
+            localStorage.setItem('theme', theme);
+        };
+
+        if(themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                const newTheme = html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark';
+                updateTheme(newTheme);
+            });
+        }
+        updateTheme(localStorage.getItem('theme') || 'light');
+
+        const mobMenu = document.getElementById('mobileMenu');
+        const hamIcon = document.getElementById('hamburgerIcon');
+        if(mobMenu && hamIcon) {
+            mobMenu.addEventListener('shown.bs.collapse', () => hamIcon.className = 'bi bi-x fs-2');
+            mobMenu.addEventListener('hidden.bs.collapse', () => hamIcon.className = 'bi bi-list fs-2');
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

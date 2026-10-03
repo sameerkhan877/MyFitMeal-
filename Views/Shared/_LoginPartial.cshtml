@@ -1,0 +1,25 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<ul class="navbar-nav align-items-center">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        @* Jab user login ho, tab sirf Logout button dikhayein kyunki username humne layout header mein handle kiya hai *@
+        <li class="nav-item">
+            <form class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                <button type="submit" class="nav-link btn btn-link text-danger fw-bold small text-uppercase" style="text-decoration:none; letter-spacing:1px;">
+                    <i class="bi bi-box-arrow-right me-1"></i> Logout
+                </button>
+            </form>
+        </li>
+    }
+    else
+    {
+        @* Jab user login NA ho, tab Register aur Login dikhayein *@
+        <li class="nav-item d-flex gap-2">
+            <a class="nav-link btn btn-outline-dark rounded-pill px-3 py-1 small fw-bold" asp-area="Identity" asp-page="/Account/Register">Register</a>
+            <a class="nav-link btn btn-lime-accent text-dark rounded-pill px-3 py-1 small fw-bold" style="background:var(--lime-accent)" asp-area="Identity" asp-page="/Account/Login">Login</a>
+        </li>
+    }
+</ul>

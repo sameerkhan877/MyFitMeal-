@@ -1,0 +1,208 @@
+﻿@model IEnumerable<MyFitMeal.Models.FavoriteMeal>
+
+<style>
+    :root {
+        --lime: #ccff00;
+        /* Light Mode Defaults */
+        --fav-card-bg: #ffffff;
+        --fav-card-border: rgba(0,0,0,0.08);
+        --fav-text: #111111;
+        --fav-text-dim: #666666;
+        --fav-badge-bg: rgba(204, 255, 0, 0.15);
+    }
+
+    /* Dark Mode Overrides */
+    [data-bs-theme="dark"] {
+        --fav-card-bg: #16191c;
+        --fav-card-border: rgba(255,255,255,0.05);
+        --fav-text: #f8f9fa;
+        --fav-text-dim: #888888;
+        --fav-badge-bg: #1f2327;
+    }
+
+    body {
+        background-color: var(--bs-body-bg);
+        color: var(--fav-text);
+        transition: background 0.3s ease;
+    }
+
+    .fav-header-solid {
+        font-weight: 950;
+        letter-spacing: -2px;
+        text-transform: uppercase;
+        color: var(--fav-text);
+    }
+
+    /* Adaptive Solid Fav Card */
+    .solid-fav-card {
+        background: var(--fav-card-bg);
+        border: 1px solid var(--fav-card-border);
+        border-radius: 28px;
+        transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+        .solid-fav-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--lime);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+    .meal-type-badge {
+        font-size: 0.6rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        background: var(--fav-badge-bg);
+        color: var(--lime);
+        padding: 6px 12px;
+        letter-spacing: 1.5px;
+        border-radius: 10px;
+        border: 1px solid rgba(204, 255, 0, 0.2);
+    }
+
+    .text-dim-custom {
+        color: var(--fav-text-dim) !important;
+        font-weight: 700;
+    }
+
+    .meal-name-text {
+        color: var(--fav-text);
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .remove-trigger {
+        background: rgba(220, 53, 69, 0.1);
+        border: 1px solid rgba(220, 53, 69, 0.2);
+        color: #ff4d5e;
+        font-weight: 800;
+        font-size: 0.7rem;
+        transition: 0.3s;
+        border-radius: 12px;
+        text-transform: uppercase;
+    }
+
+        .remove-trigger:hover {
+            background: #dc3545;
+            color: #fff;
+        }
+
+    /* Animation Hub */
+    .animate-out {
+        transform: scale(0.8);
+        opacity: 0;
+        transition: 0.4s ease;
+    }
+</style>
+
+<div class="container-fluid py-4">
+    @* --- Header --- *@
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3 animate__animated animate__fadeIn">
+        <div>
+            <h1 class="fav-header-solid mb-0 display-5">Favorite <span style="color:var(--lime)">Archive</span></h1>
+            <p class="text-dim-custom small text-uppercase letter-spacing-1">Personalized High-Performance Database</p>
+        </div>
+        <a asp-action="Index" class="btn btn-outline-dark rounded-pill px-4 fw-bold border-opacity-25 theme-adaptive-btn">
+            <i class="bi bi-cpu-fill me-2"></i> Return to Hub
+        </a>
+    </div>
+
+    @Html.AntiForgeryToken()
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 solid-fav-card mx-auto animate__animated animate__zoomIn" style="max-width: 550px;">
+            <div class="mb-4 opacity-25">
+                <i class="bi bi-database-exclamation display-1"></i>
+            </div>
+            <h4 class="fw-black text-uppercase">Node Empty</h4>
+            <p class="text-dim-custom mb-4 px-5">Your favorites archive contains no data nodes. Sync meals from your protocol to build your archive.</p>
+            <a asp-action="Index" class="btn btn-dark rounded-pill px-5 py-3 fw-black text-uppercase shadow-lg" style="background: var(--lime); color: #000; border: none;">Initialize Search</a>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4" id="favGrid">
+            @foreach (var meal in Model)
+            {
+                <div class="col-md-6 col-lg-4 fav-item-wrapper animate__animated animate__fadeInUp" id="card-@meal.Id">
+                    <div class="card solid-fav-card border-0">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-4">
+                                <span class="meal-type-badge">
+                                    <i class="bi bi-lightning-charge-fill"></i> @meal.MealType
+                                </span>
+                                <div class="text-end">
+                                    <div class="text-dim-custom" style="font-size: 0.55rem; text-transform: uppercase;">Synced On</div>
+                                    <div class="small fw-black">@meal.DateSaved.ToString("dd MMM yyyy")</div>
+                                </div>
+                            </div>
+
+                            <h5 class="meal-name-text mb-4 flex-grow-1 lh-base" style="font-size: 1rem;">@meal.MealName</h5>
+
+                            <div class="pt-3 border-top border-secondary border-opacity-10 d-flex justify-content-between align-items-center">
+                                <button class="btn remove-trigger px-3 py-2" onclick="confirmPurge(@meal.Id)">
+                                    <i class="bi bi-trash3-fill me-1"></i> Purge Node
+                                </button>
+                                <div class="bg-lime bg-opacity-10 p-2 rounded-circle" style="width: 32px; height: 32px; display:flex; align-items:center; justify-content:center; border: 1px solid rgba(204,255,0,0.2);">
+                                    <i class="bi bi-star-fill text-lime small"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        async function confirmPurge(id) {
+            if (!confirm("CRITICAL: Permanently remove this protocol node?")) return;
+
+            const card = document.getElementById(`card-${id}`);
+            const btn = card.querySelector('.remove-trigger');
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+            $.ajax({
+                url: '/Dashboard/RemoveFavorite',
+                type: 'POST',
+                data: {
+                    id: id,
+                    __RequestVerificationToken: token
+                },
+                success: function (result) {
+                    if (result.success) {
+                        card.classList.add('animate-out');
+                        setTimeout(() => {
+                            card.remove();
+                            if (document.querySelectorAll('.fav-item-wrapper').length === 0) {
+                                location.reload();
+                            }
+                        }, 400);
+                    } else {
+                        alert("Archive Error: Access Denied.");
+                        resetBtn(btn);
+                    }
+                },
+                error: function () {
+                    alert("Sync Failure: Database unreachable.");
+                    resetBtn(btn);
+                }
+            });
+        }
+
+        function resetBtn(btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-trash3-fill me-1"></i> Purge Node';
+        }
+    </script>
+}

@@ -1,0 +1,239 @@
+﻿@model MyFitMeal.Models.DailyDiet
+
+<style>
+    :root {
+        --lime: #ccff00;
+        --glass-bg: rgba(255, 255, 255, 0.9);
+        --dark-panel: #111;
+        --trans-smooth: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    [data-bs-theme="dark"] {
+        --glass-bg: rgba(26, 29, 32, 0.9);
+    }
+
+    /* Hardware Accelerated Container */
+    .dashboard-details-container {
+        backface-visibility: hidden;
+        transform: translateZ(0);
+    }
+
+    /* Immersive Vertical Timeline */
+    .meal-timeline-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(15px);
+        -webkit-backdrop-filter: blur(15px);
+        border-radius: 30px;
+        border-left: 8px solid;
+        transition: var(--trans-smooth);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+        margin-bottom: 1.5rem;
+    }
+
+        .meal-timeline-card:hover {
+            transform: scale(1.02) translateX(8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        }
+
+    /* Cyber Macro Sidebar Optimized */
+    .macro-panel {
+        background: var(--dark-panel);
+        color: white;
+        border-radius: 40px;
+        padding: 30px;
+        position: sticky;
+        top: 100px;
+        border: 1px solid rgba(204, 255, 0, 0.1);
+        box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+        transition: var(--trans-smooth);
+    }
+
+    .macro-ring-container {
+        width: 140px;
+        height: 140px;
+        margin: 0 auto 20px;
+    }
+
+    /* Interactive Heart Button */
+    .fav-btn-glow {
+        color: #ff4b2b;
+        background: rgba(255, 75, 43, 0.05);
+        border: none;
+        width: 48px;
+        height: 48px;
+        border-radius: 16px;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .fav-btn-glow:hover {
+            background: rgba(255, 75, 43, 0.15);
+            transform: scale(1.1) rotate(10deg);
+        }
+
+    .admin-insight-box {
+        background: rgba(204, 255, 0, 0.05);
+        border: 2px dashed var(--lime);
+        border-radius: 25px;
+        color: var(--lime);
+    }
+
+    /* Responsive Overrides */
+    @@media (max-width: 991.98px) {
+        .macro-panel {
+            position: relative;
+            top: 0;
+            margin-top: 3rem;
+            border-radius: 30px;
+        }
+
+        .meal-timeline-card:hover {
+            transform: translateY(-5px); /* Vertical hover on mobile */
+        }
+    }
+</style>
+
+<div class="container-fluid py-4 dashboard-details-container">
+    <div class="row g-4 g-lg-5">
+        @* --- Left Content: Meal Timeline --- *@
+        <div class="col-lg-8 order-2 order-lg-1">
+            <div class="d-flex align-items-center mb-5 animate__animated animate__fadeIn">
+                <a asp-action="Index" class="btn btn-dark rounded-circle me-3 shadow-sm d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                    <i class="bi bi-arrow-left fs-5"></i>
+                </a>
+                <div>
+                    <h1 class="fw-black mb-0 text-uppercase h2">Day <span style="color:var(--lime)">@Model.DayNumber</span></h1>
+                    <p class="text-muted small fw-bold mb-0 text-uppercase letter-spacing-1">Biometric Nutrition Protocol</p>
+                </div>
+            </div>
+
+            <div class="timeline-wrapper">
+                @* --- Meal Loop with Color Codes --- *@
+                @{
+                    var mealData = new[] {
+                                new { Name = "Morning Fuel", Content = Model.Breakfast, Color = "#ffc107", Tag = "ENERGY KICKSTARTER", Type = "Breakfast" },
+                                new { Name = "Main Performance", Content = Model.Lunch, Color = "#20c997", Tag = "STABLE GLYCOGEN", Type = "Lunch" },
+                                new { Name = "Metabolic Bridge", Content = Model.Snack, Color = "#fd7e14", Tag = "CRAVING CONTROL", Type = "Snack" },
+                                new { Name = "Recovery Phase", Content = Model.Dinner, Color = "#0d6efd", Tag = "MUSCLE REPAIR", Type = "Dinner" }
+                                };
+                }
+
+                @foreach (var meal in mealData)
+                {
+                    <div class="card meal-timeline-card border-0 animate__animated animate__fadeInLeft" style="border-left-color: @meal.Color !important;">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="pe-3">
+                                    <h6 class="fw-black text-uppercase small mb-1" style="color: @meal.Color">@meal.Name</h6>
+                                    <h4 class="fw-bold mb-2 h5">@meal.Content</h4>
+                                </div>
+                                <button class="fav-btn-glow fav-btn" data-meal="@meal.Content" data-type="@meal.Type">
+                                    <i class="bi bi-heart fs-5"></i>
+                                </button>
+                            </div>
+                            <span class="badge rounded-pill px-3 py-2" style="background: @(meal.Color)1a; color: @meal.Color; font-size: 0.65rem;">@meal.Tag</span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @* --- Right Sidebar: Intelligent Macro Analysis --- *@
+        <div class="col-lg-4 order-1 order-lg-2">
+            <div class="macro-panel animate__animated animate__fadeInRight">
+                <h5 class="fw-black mb-4 text-center text-uppercase letter-spacing-2">Nutrition <span style="color:var(--lime)">Intel</span></h5>
+
+                <div class="macro-ring-container">
+                    <canvas id="macroDonutChart"></canvas>
+                </div>
+
+                <div class="text-center mb-4">
+                    <h2 class="fw-black mb-0">@ViewBag.TargetCals <small class="fs-6 opacity-50">kcal</small></h2>
+                    <p class="small text-uppercase fw-bold text-lime" style="font-size: 0.65rem;">Optimal Daily Threshold</p>
+                </div>
+
+                <div class="macro-stats space-y-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="small fw-bold opacity-50">PROTEIN TARGET</span>
+                        <span class="badge bg-white text-dark fw-black">@ViewBag.Protein g</span>
+                    </div>
+                    <div class="progress mb-4" style="height: 6px; background: rgba(255,255,255,0.1); border-radius: 10px;">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" style="width: 100%; background: var(--lime);"></div>
+                    </div>
+
+                    @* --- AI ADVISORY SECTION (Admin Note Highlight) --- *@
+                    @if (!string.IsNullOrEmpty(Model.AdminNote))
+                    {
+                        <div class="admin-insight-box p-4 mt-4 animate__animated animate__pulse animate__infinite">
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-robot me-2 fs-5"></i>
+                                <h6 class="fw-black small mb-0 uppercase">Expert Advisory</h6>
+                            </div>
+                            <p class="small mb-0 opacity-85 lh-base italic">"@Model.AdminNote"</p>
+                        </div>
+                    }
+                </div>
+
+                <div class="mt-4 pt-3 border-top border-secondary border-opacity-25 text-center">
+                    <p class="x-small text-white-50 mb-0">
+                        <i class="bi bi-patch-check-fill text-lime me-1"></i> Verified by MyFitMeal AI Core
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function () {
+            // High-Performance Donut Chart
+            const ctx = document.getElementById('macroDonutChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['P', 'C', 'F'],
+                    datasets: [{
+                        data: [30, 45, 25],
+                        backgroundColor: ['#ccff00', '#222', '#444'],
+                        borderWidth: 0,
+                        hoverOffset: 8
+                    }]
+                },
+                options: {
+                    cutout: '82%',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    animation: { animateScale: true }
+                }
+            });
+
+            // AJAX Toggle Logic for Favorites
+            $('.fav-btn').off('click').on('click', function () {
+                const btn = $(this);
+                const icon = btn.find('i');
+                const mealName = btn.data('meal');
+                const mealType = btn.data('type');
+
+                btn.prop('disabled', true);
+
+                $.post('/Dashboard/ToggleFavorite', { mealName: mealName, mealType: mealType }, function (response) {
+                    if (response.success) {
+                        if (response.status === "added") {
+                            icon.removeClass('bi-heart').addClass('bi-heart-fill animate__animated animate__heartBeat');
+                            btn.css('background', 'rgba(255, 75, 43, 0.2)');
+                        } else {
+                            icon.removeClass('bi-heart-fill animate__animated animate__heartBeat').addClass('bi-heart');
+                            btn.css('background', 'rgba(255, 75, 43, 0.05)');
+                        }
+                    }
+                    btn.prop('disabled', false);
+                });
+            });
+        });
+    </script>
+}

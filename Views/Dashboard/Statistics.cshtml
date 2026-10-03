@@ -1,0 +1,206 @@
+﻿@{
+    ViewData["Title"] = "Body Analytics";
+}
+
+<style>
+    :root {
+        --lime: #ccff00;
+        --dark: #0f1113;
+        --glass: rgba(255, 255, 255, 0.9);
+        --trans: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    [data-bs-theme="dark"] {
+        --glass: rgba(26, 29, 32, 0.85);
+    }
+
+    /* Hardware Accelerated Container */
+    .analytics-matrix {
+        backface-visibility: hidden;
+        transform: translateZ(0);
+    }
+
+    .stats-card {
+        background: var(--glass);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 35px;
+        padding: 30px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        transition: var(--trans);
+        height: 100%;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-8px);
+        border-color: var(--lime);
+        box-shadow: 0 15px 35px rgba(204, 255, 0, 0.1);
+    }
+
+    .metric-badge {
+        background: var(--dark);
+        color: var(--lime);
+        padding: 8px 18px;
+        border-radius: 14px;
+        display: inline-block;
+        font-weight: 900;
+        margin-bottom: 15px;
+        font-size: 0.65rem;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+    }
+
+    /* Optimized Chart View */
+    .chart-panel {
+        position: relative;
+        height: 400px;
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    @@media (max-width: 768px) {
+        .chart-panel { height: 300px; }
+        .display-5 { font-size: 2.2rem; }
+        .stats-card { padding: 20px; border-radius: 25px; }
+    }
+</style>
+
+<div class="container-fluid py-4 analytics-matrix">
+    @* --- Header Section --- *@
+    <div class="row align-items-center mb-5 gy-4 animate__animated animate__fadeIn">
+        <div class="col-md-8 text-center text-md-start">
+            <h1 class="fw-black display-5 text-uppercase mb-1">Body <span style="color:var(--lime)">Evolution</span></h1>
+            <p class="text-muted small fw-bold text-uppercase letter-spacing-2 opacity-75">Bio-Metric Data Intelligence Hub</p>
+        </div>
+        <div class="col-md-4 text-center text-md-end">
+            <a asp-action="Index" class="btn btn-dark rounded-pill px-4 py-2 fw-black text-uppercase shadow-lg border-0" style="font-size: 0.75rem;">
+                <i class="bi bi-cpu-fill me-2 text-lime" style="color:var(--lime)"></i> Return to Core
+            </a>
+        </div>
+    </div>
+
+    @* --- Interactive Metrics Grid --- *@
+    <div class="row g-4 mb-5">
+        @* Weight Node *@
+        <div class="col-md-4 animate__animated animate__fadeInUp">
+            <div class="stats-card text-center">
+                <div class="metric-badge">Mass Node</div>
+                <h2 class="fw-black mb-0 display-6">@ViewBag.CurrentWeight <small class="text-muted fs-6 fw-bold">KG</small></h2>
+                <div class="mt-3 x-small text-muted fw-bold text-uppercase opacity-50">Latest Bio-Record</div>
+            </div>
+        </div>
+
+        @* Energy Node *@
+        <div class="col-md-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+            <div class="stats-card text-center">
+                <div class="metric-badge">Fuel Ceiling</div>
+                <h2 class="fw-black mb-0 display-6">@ViewBag.TargetCals <small class="text-muted fs-6 fw-bold">KCAL</small></h2>
+                <div class="mt-3 x-small text-muted fw-bold text-uppercase opacity-50">Caloric Threshold</div>
+            </div>
+        </div>
+
+        @* Protein Node *@
+        <div class="col-md-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+            <div class="stats-card text-center">
+                <div class="metric-badge">Macro Synthesis</div>
+                <h2 class="fw-black mb-0 display-6">@ViewBag.Protein <small class="text-muted fs-6 fw-bold">G</small></h2>
+                <div class="mt-3 x-small text-muted fw-bold text-uppercase opacity-50">Daily Protein Intake</div>
+            </div>
+        </div>
+
+        @* --- Full History Trajectory --- *@
+        <div class="col-12 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
+            <div class="stats-card">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+                    <div class="text-center text-md-start">
+                        <h4 class="fw-black mb-0 text-uppercase letter-spacing-1">Transformation Flow</h4>
+                        <small class="text-muted fw-bold">Encrypted Time-Series Data Synchronization</small>
+                    </div>
+                    <div class="badge bg-dark border border-lime border-opacity-25 text-lime px-4 py-2 rounded-pill shadow-sm" style="color:var(--lime); font-size: 0.6rem;">
+                        <span class="spinner-grow spinner-grow-sm me-2" role="status" style="width: 8px; height: 8px;"></span> LIVE ANALYTICS ENGINE
+                    </div>
+                </div>
+                <div class="chart-panel">
+                    <canvas id="weightFlowChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const ctx = document.getElementById('weightFlowChart').getContext('2d');
+
+            // High-End UI Gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(204, 255, 0, 0.35)');
+            gradient.addColorStop(1, 'rgba(204, 255, 0, 0)');
+
+            // Safety check for empty datasets
+            const labels = @Html.Raw(Json.Serialize(ViewBag.HistoryLabels ?? new List<string> { "Start" }));
+            const weightData = @Html.Raw(Json.Serialize(ViewBag.HistoryData ?? new List<double> { 0 }));
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Bio-Mass Flow',
+                        data: weightData,
+                        borderColor: '#ccff00',
+                        borderWidth: 4,
+                        pointBackgroundColor: '#0f1113',
+                        pointBorderColor: '#ccff00',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 8,
+                        tension: 0.45,
+                        fill: true,
+                        backgroundColor: gradient
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#111',
+                            titleFont: { size: 12, weight: '900' },
+                            titleColor: '#ccff00',
+                            bodyFont: { size: 14, weight: 'bold' },
+                            padding: 15,
+                            cornerRadius: 12,
+                            displayColors: false,
+                            callbacks: {
+                                label: (ctx) => ` PROTOCOL WEIGHT: ${ctx.parsed.y} KG`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false },
+                            ticks: { 
+                                color: '#888',
+                                font: { weight: 'bold', size: 11 },
+                                callback: (val) => val + ' KG'
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { 
+                                color: '#888',
+                                font: { weight: 'bold', size: 10 }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+}

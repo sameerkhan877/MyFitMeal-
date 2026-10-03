@@ -1,0 +1,179 @@
+﻿@{
+    ViewData["Title"] = "Create My Plan";
+}
+
+<style>
+    :root {
+        --lime-accent: #ccff00;
+        --glass-panel: rgba(255, 255, 255, 0.9);
+    }
+
+    [data-bs-theme="dark"] {
+        --glass-panel: rgba(26, 29, 32, 0.9);
+    }
+
+    /* Elite AI Card with Hardware Acceleration */
+    .ai-magic-card {
+        background: var(--glass-panel);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-radius: 45px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+        position: relative;
+        overflow: hidden;
+        backface-visibility: hidden;
+        transform: translateZ(0);
+    }
+
+    .magic-glow-icon {
+        font-size: clamp(4rem, 10vw, 6rem);
+        background: linear-gradient(135deg, #111 0%, var(--lime-accent) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: inline-block;
+        filter: drop-shadow(0 15px 15px rgba(204, 255, 0, 0.3));
+    }
+
+    [data-bs-theme="dark"] .magic-glow-icon {
+        background: linear-gradient(135deg, #fff 0%, var(--lime-accent) 100%);
+        -webkit-background-clip: text;
+    }
+
+    /* Interactive Pulsing Effect */
+    .pulse-glow {
+        animation: pulse-lime 2.5s infinite ease-in-out;
+    }
+
+    @@keyframes pulse-lime {
+        0%, 100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        50% {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+    }
+
+    .status-pill-lime {
+        background: rgba(204, 255, 0, 0.1);
+        color: var(--lime-accent);
+        border: 1px solid rgba(204, 255, 0, 0.2);
+        padding: 10px 25px;
+        border-radius: 50px;
+        font-weight: 800;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+    }
+
+    .btn-ai-generate {
+        background: #000;
+        color: var(--lime-accent);
+        border: 1.5px solid var(--lime-accent);
+        font-weight: 900;
+        padding: 20px 50px;
+        border-radius: 50px;
+        transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+    }
+
+        .btn-ai-generate:hover {
+            background: var(--lime-accent);
+            color: #000;
+            transform: scale(1.05) translateY(-8px);
+            box-shadow: 0 20px 40px rgba(204, 255, 0, 0.4);
+        }
+
+    /* Enhanced Loader */
+    .ai-loader {
+        color: var(--lime-accent);
+        width: 3.5rem;
+        height: 3.5rem;
+        border-width: 0.25em;
+    }
+
+    @@media (max-width: 768px) {
+        .ai-magic-card {
+            border-radius: 35px;
+            padding: 40px 20px !important;
+        }
+
+        .btn-ai-generate {
+            width: 100%;
+            padding: 18px 20px;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+
+<div class="container py-5">
+    <div class="row justify-content-center align-items-center" style="min-height: 70vh;">
+        <div class="col-lg-8 col-xl-7">
+            <div class="card ai-magic-card p-5 text-center shadow-lg border-0 animate__animated animate__zoomIn">
+
+                @* --- Visual Identity --- *@
+                <div class="mb-5">
+                    <div class="pulse-glow">
+                        <i class="bi bi-stars magic-glow-icon"></i>
+                    </div>
+                </div>
+
+                <h1 class="fw-black mb-3 text-uppercase h2">Plan <span style="color:var(--lime-accent)">Not Found</span></h1>
+                <p class="text-muted mb-4 px-md-5 lh-lg">
+                    Aapka bio-profile synchronize ho chuka hai. Ab hamare **Gemini AI Engine** ko aapke lifestyle aur goals ke basis par ek high-performance 7-day protocol design karne dein.
+                </p>
+
+                <div class="mb-5">
+                    <span class="status-pill-lime text-uppercase">
+                        <i class="bi bi-cpu-fill me-2"></i> Targeted for @ViewBag.Lifestyle Routine
+                    </span>
+                </div>
+
+                @* --- Command Execution --- *@
+                <form asp-action="GenerateFullPlan" method="post" id="genForm">
+                    <button type="submit" class="btn btn-ai-generate btn-lg shadow-lg" id="genBtn">
+                        <i class="bi bi-lightning-charge-fill me-2"></i> Initialise AI Protocol
+                    </button>
+                </form>
+
+                @* --- Syncing State (Hidden by Default) --- *@
+                <div class="mt-4 d-none" id="loadingState">
+                    <div class="spinner-border ai-loader mb-4" role="status"></div>
+                    <h4 class="fw-black text-uppercase mb-1" style="letter-spacing: 2px;">Syncing Macros...</h4>
+                    <p class="text-muted small">Gemini AI is crafting your biological roadmap. Please do not refresh.</p>
+                </div>
+
+                @* --- Trust Indicators --- *@
+                <div class="mt-5 pt-4 border-top border-secondary border-opacity-10">
+                    <div class="d-flex flex-wrap justify-content-center gap-4 text-secondary small fw-bold text-uppercase opacity-75" style="font-size: 0.65rem; letter-spacing: 1px;">
+                        <span><i class="bi bi-shield-check text-success me-1"></i> Bio-Verified</span>
+                        <span><i class="bi bi-currency-rupee text-success me-1"></i> Local Sourcing</span>
+                        <span><i class="bi bi-clock-history text-success me-1"></i> 7-Day Cycle</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Smooth transition to AI Engine state
+            $('#genForm').on('submit', function() {
+                const btn = $('#genBtn');
+                const loader = $('#loadingState');
+
+                btn.addClass('animate__animated animate__fadeOutDown');
+
+                setTimeout(() => {
+                    btn.addClass('d-none');
+                    loader.removeClass('d-none').addClass('animate__animated animate__fadeInUp');
+                }, 300);
+            });
+        });
+    </script>
+}
